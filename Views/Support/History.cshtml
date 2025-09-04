@@ -1,0 +1,31 @@
+@* @model IEnumerable<RMS.Data.Entities.SupportMessage>
+
+@{
+    ViewData["Title"] = "My Support History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>My Support Requests</h2>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var message in Model)
+    {
+        <tr>
+            <td>@message.SubmittedAt.ToLocalTime().ToString("g")</td>
+            <td>@message.Message</td>
+        </tr>
+    }
+    </tbody>
+</table> *@
+
+
+
+
+

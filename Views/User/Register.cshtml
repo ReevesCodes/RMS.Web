@@ -1,0 +1,128 @@
+
+
+
+
+@model UserRegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm border-0 rounded-4" style="width: 400px;">
+        <div class="card-body p-4">
+            <h4 class="text-center mb-3" id="registerHeading" tabindex="-1">Sign Up</h4>
+
+            <div asp-validation-summary="ModelOnly" class="text-danger small text-center mb-2"></div>
+
+            <form asp-action="Register" method="post" class="needs-validation" novalidate aria-labelledby="registerHeading">
+                
+                <!-- NAME -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input asp-for="Name" class="form-control form-control-sm" id="nameInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('nameInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input asp-for="Email" class="form-control form-control-sm" id="emailInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('emailInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input type="password" asp-for="Password" class="form-control form-control-sm" id="passwordInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePassword('passwordInput')">👁</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('passwordInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <!-- CONFIRM PASSWORD -->
+                <div class="mb-3">
+                    <label asp-for="PasswordConfirm" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input type="password" asp-for="PasswordConfirm" class="form-control form-control-sm" id="confirmPasswordInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePassword('confirmPasswordInput')">👁</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('confirmPasswordInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="PasswordConfirm" class="text-danger small"></span>
+                </div>
+
+                <!-- ROLE -->
+                <div class="mb-3">
+                    <label asp-for="Role" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <select asp-for="Role" asp-items="Html.GetEnumSelectList<Role>()" class="form-select form-select-sm" aria-required="true">
+                            <option disabled selected>Select Role</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="Role" class="text-danger small"></span>
+                </div>
+
+                <!-- REGISTER BUTTON -->
+                <div class="d-grid mb-2">
+                    <button type="submit" class="btn btn-outline-success btn-sm">Register</button>
+                </div>
+
+                <!-- CANCEL & LOGIN LINK -->
+                <div class="d-flex justify-content-between small">
+                    <a class="btn btn-secondary btn-sm" asp-controller="Home" asp-action="Index">Cancel</a>
+                    <span>Already have an account? <a asp-controller="User" asp-action="Login">Login</a></span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function speak(message) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(message);
+            synth.speak(utterance);
+        }
+
+        function startVoiceInput(fieldId) {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voice recognition not supported.");
+                return;
+            }
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript.trim();
+                document.getElementById(fieldId).value = transcript;
+                speak(`${fieldId.replace('Input', '')} set to ${transcript}`);
+            };
+
+            recognition.onerror = function (event) {
+                alert('Speech recognition error: ' + event.error);
+            };
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        window.onload = () => document.getElementById('registerHeading').focus();
+    </script>
+}

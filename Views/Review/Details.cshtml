@@ -1,0 +1,106 @@
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<!-- Review Section -->
+<div class="card mb-4 shadow-sm rounded" aria-live="polite" aria-atomic="true" role="region" id="reviewSection">
+    <div class="card-body">
+        <h4 tabindex="0">Customer Reviews</h4>
+
+        @if (Model.Reviews?.Any() ?? false)
+        {
+            <div id="reviewsList" aria-label="List of reviews">
+                @foreach (var review in Model.Reviews)
+                {
+                    <div class="border rounded p-3 mb-3 bg-light review-box" tabindex="0" onfocus="readReview(this)">
+                        <strong>@(review.User?.UserName ?? review.GuestName ?? "Guest")</strong>
+                        <div class="text-warning" aria-label="@review.Rating out of 5 stars">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= review.Rating)
+                                {
+                                    <span class="fa fa-star" aria-hidden="true"></span>
+                                }
+                                else
+                                {
+                                    <span class="fa fa-star-o" aria-hidden="true"></span>
+                                }
+                            }
+                        </div>
+                        <p>@review.Comment</p>
+                        <small class="text-muted">@review.CreatedAt.ToShortDateString()</small>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p tabindex="0">No reviews yet. Be the first to review this product!</p>
+        }
+    </div>
+</div>
+
+<!-- Add Review Form -->
+<div class="card mb-5 shadow-sm rounded" aria-live="polite" aria-atomic="true" role="region" id="addReviewSection">
+    <div class="card-body">
+        <h4 tabindex="0">Add a Review</h4>
+
+        <form asp-controller="Review" asp-action="Create" method="post" id="reviewForm" aria-label="Add review form">
+            <input type="hidden" name="ProductId" value="@Model.Id" />
+
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <div class="mb-3">
+                    <label for="GuestName" class="form-label">Your Name (optional)</label>
+                    <input type="text" class="form-control" name="GuestName" id="GuestName" placeholder="Enter your name or leave blank for Guest" />
+                </div>
+            }
+
+            <div class="mb-3">
+                <label for="Rating" class="form-label">Rating</label>
+                <select class="form-select" name="Rating" id="Rating" required>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <option value="@i">@i Star@(i > 1 ? "s" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="Comment" class="form-label">Comment</label>
+                <textarea class="form-control" name="Comment" id="Comment" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+<!-- Accessibility Script -->
+<script>
+function speak(text) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'en-US';
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+}
+
+function readReview(element) {
+    const username = element.querySelector('strong')?.innerText || 'Anonymous';
+    const rating = element.querySelectorAll('.fa-star').length;
+    const comment = element.querySelector('p')?.innerText || '';
+    const date = element.querySelector('small')?.innerText || '';
+    speak(`Review by ${username}, ${rating} stars. Comment: ${comment}. Date: ${date}.`);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const alertElement = document.querySelector(".alert-success");
+    if (alertElement) {
+        const message = alertElement.innerText.trim();
+        if (message) {
+            speak(message);
+        }
+    }
+});
+</script>
+

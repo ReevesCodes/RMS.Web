@@ -1,0 +1,89 @@
+@model RMS.Data.Entities.SupportMessage
+
+@{
+    ViewData["Title"] = "Customer Support";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="support-container" style="max-width:500px; margin:auto; border:1px solid #ddd; padding:20px; border-radius:8px; background:#fafafa;">
+    <h2 style="margin-top:0; margin-bottom:15px;">Contact Customer Support</h2>
+
+    <p id="assistiveIntro" tabindex="0" aria-live="polite" style="font-size:0.9rem; color:#555; margin-bottom:12px;">
+        Describe your issue below and we will assist you.
+    </p>
+
+    <form asp-action="Submit" method="post" style="display:flex; flex-direction:column; gap:12px;">
+        @Html.AntiForgeryToken()
+
+        <div style="display:flex; gap:6px; align-items:center;">
+            <input asp-for="Name" id="nameInput" placeholder="Your Name" class="form-control" required aria-label="Your Name" />
+            <button type="button" class="btn btn-secondary" aria-label="Start dictation for name" onclick="speak('Start dictation for name'); startDictation('nameInput')">🎤</button>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center;">
+            <input asp-for="Email" id="emailInput" type="email" placeholder="Email Address" class="form-control" required aria-label="Email Address" />
+            <button type="button" class="btn btn-secondary" aria-label="Start dictation for email" onclick="speak('Start dictation for email'); startDictation('emailInput')">🎤</button>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center;">
+            <textarea asp-for="Message" id="messageInput" rows="3" placeholder="Your Message" class="form-control" required aria-label="Your Message"></textarea>
+            <button type="button" class="btn btn-secondary" aria-label="Start dictation for message" onclick="speak('Start dictation for message'); startDictation('messageInput')">🎤</button>
+        </div>
+
+        <button type="submit" class="btn btn-outline-success" aria-label="Submit Support Request">Submit</button>
+    </form>
+
+    @if (ViewBag.Status != null)
+    {
+        <div class="alert alert-info mt-3" role="alert" aria-live="polite">@ViewBag.Status</div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    // Voice intro on page load
+    window.onload = () => {
+        const intro = "Welcome to Customer Support. Fill in your name, email, and message using keyboard or microphone buttons.";
+        if ('speechSynthesis' in window) {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(intro));
+        }
+    };
+
+    // Speak function for buttons
+    function speak(text) {
+        if ('speechSynthesis' in window && text) {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        }
+    }
+
+    // Speech-to-text input for specific input by id
+    function startDictation(inputId) {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Speech recognition is not supported in this browser.");
+            return;
+        }
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const inputElem = document.getElementById(inputId);
+            if (inputElem) {
+                inputElem.value = transcript;
+                inputElem.focus();
+            }
+        };
+
+        recognition.onerror = function(event) {
+            alert("Speech recognition error: " + event.error);
+        };
+
+        recognition.start();
+    }
+</script>
+
+@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

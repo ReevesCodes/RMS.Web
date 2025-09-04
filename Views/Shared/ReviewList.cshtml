@@ -1,0 +1,20 @@
+@* @model IEnumerable<RMS.Data.Entities.Review>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var review in Model)
+    {
+        <div class="card my-2">
+            <div class="card-body">
+                
+                <p>@review.Comment</p>
+                <small>Rating: @review.Rating / 5</small>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No reviews yet. Be the first to write one!</p>
+}
+@Html.Partial("_ReviewList", Model.Reviews) *@

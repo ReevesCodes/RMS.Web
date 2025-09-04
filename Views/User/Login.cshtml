@@ -1,0 +1,110 @@
+
+
+@model UserLoginViewModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+    <div class="card shadow-sm border-0 rounded-4" style="width: 350px;">
+        <div class="card-body p-4">
+            <h4 class="text-center mb-3" id="loginHeading" tabindex="-1">Login</h4>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger py-1 px-2 mb-3 text-center" role="alert" aria-live="assertive" tabindex="-1">
+                    Please correct the errors.
+                </div>
+            }
+
+            <form id="loginForm" asp-action="Login" method="post" class="needs-validation" novalidate aria-labelledby="loginHeading">
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input asp-for="Email" class="form-control form-control-sm" id="emailInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('emailInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label small fw-bold"></label>
+                    <div class="input-group input-group-sm">
+                        <input type="password" asp-for="Password" class="form-control form-control-sm" id="passwordInput" aria-required="true" />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="togglePassword()">👁</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="startVoiceInput('passwordInput')">🎤</button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <!-- LOGIN BUTTON -->
+                <div class="d-grid mb-2">
+                    <button type="submit" class="btn btn-outline-success btn-sm">Login</button>
+                </div>
+
+                <!-- LINKS -->
+                <div class="d-flex justify-content-between mb-2">
+                    <a asp-controller="Account" asp-action="ForgotPassword" class="small text-decoration-none">Forgot Password?</a>
+                    <a asp-controller="User" asp-action="Register" class="small text-decoration-none">Create Account</a>
+                </div>
+
+                <!-- CANCEL BUTTON -->
+                <div class="d-grid">
+                    <a class="btn btn-secondary btn-sm" asp-controller="Home" asp-action="Index">Cancel</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function speak(message) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(message);
+            synth.speak(utterance);
+        }
+
+        function startVoiceInput(fieldId) {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voice recognition not supported.");
+                return;
+            }
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript.trim();
+                document.getElementById(fieldId).value = transcript;
+                speak(`${fieldId.replace('Input', '')} set to ${transcript}`);
+
+                if (transcript.toLowerCase().includes("login now")) {
+                    document.getElementById("loginForm").submit();
+                }
+            };
+
+            recognition.onerror = function (event) {
+                alert('Speech recognition error: ' + event.error);
+            };
+        }
+
+        function togglePassword() {
+            const field = document.getElementById('passwordInput');
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
+
+        window.onload = () => document.getElementById('loginHeading').focus();
+    </script>
+}
+

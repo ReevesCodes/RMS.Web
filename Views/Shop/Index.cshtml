@@ -1,0 +1,371 @@
+@model RMS.Web.Models.ShopViewModel
+
+@{
+    ViewData["Title"] = "Shop";
+}
+
+<!-- Voice Command Button (optional if you want manual start) -->
+
+@* <div class="text-center mt-3 mb-3">
+    <button class="btn btn-outline-success" onclick="startVoiceCommands()" aria-label="Start voice command">
+        🎤 Start Voice Command
+    </button>
+</div> *@
+
+<!-- Categories Navigation -->
+<nav aria-label="Product Categories" class="mb-4">
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        @if (Model.Categories != null && Model.Categories.Any())
+        {
+            foreach (var category in Model.Categories)
+            {
+                <a href="@Url.Action("Category", "Shop", new { id = category.Id })"
+                   tabindex="0"
+                   aria-label="Category @category.Name"
+                   onfocus="speak('Category: @category.Name')"
+                   onclick="speak('Category: @category.Name')"
+                   class="btn btn-outline-success m-1">
+                    @category.Name
+                </a>
+            }
+        }
+        else
+        {
+            <span class="text-muted">No categories available.</span>
+        }
+    </div>
+</nav>
+
+<!-- ARIA Live Regions -->
+<div aria-live="polite" aria-atomic="true" id="cart-live-region" class="sr-only"></div>
+<div aria-live="polite" aria-atomic="true" id="pagination-live-region" class="sr-only"></div>
+
+<div class="container">
+
+    <!-- Recommended Products -->
+    <center><h2 tabindex="0" class="mt-4 mb-4">Recommended for You</h2></center>
+    @if (Model.RecommendedProducts != null && Model.RecommendedProducts.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" role="list" aria-label="Recommended products for you">
+            @{
+                int totalShown = 0;
+            }
+
+            @foreach (var product in Model.RecommendedProducts)
+            {
+                if (totalShown >= 8) break;
+                totalShown++;
+
+                <div class="col" role="listitem">
+                    <article tabindex="0" aria-label="@($"{product.Name}, {product.Description}, price {product.Price:C}")" class="card h-100 shadow-sm border-primary">
+                        <img src="@product.ImageUrl" class="card-img-top img-fluid" alt="@product.Name" />
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="card-title h5">@product.Name</h3>
+                            <p class="card-text text-muted">@product.Description</p>
+                            <p class="card-text fw-bold mt-auto">Price: @product.Price.ToString("C")</p>
+                            <a href="@Url.Action("Details", "Shop", new { id = product.Id })" class="btn btn-secondary mt-2 w-100" aria-label="View details of @product.Name">View Details</a>
+                        </div>
+                    </article>
+                </div>
+            }
+
+            <!-- Ad Cards -->
+            <div class="col d-none d-lg-block" role="listitem" aria-label="Advertisement: Hot deal on assistive devices">
+                <div class="card h-100 border-warning bg-light text-center shadow-lg">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-warning mb-2">🔥 Hot Deal!</h4>
+                        <p class="text-muted small">Get 20% off all Assistive Devices this week only!</p>
+                        <a href="@Url.Action("Category", "Shop", new { id = 2 })" class="btn btn-warning btn-sm" aria-label="Shop Assistive Devices category now">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col d-none d-lg-block" role="listitem" aria-label="Advertisement: Special offer on spices">
+                <div class="card h-100 border-success bg-light text-center shadow-lg">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <h4 class="text-success mb-2">Clearance Sale!</h4>
+                        <p class="text-muted small">Save 15% on all clearance this month!</p>
+                        <a href="@Url.Action("Category", "Shop", new { id = 1 })" class="btn btn-success btn-sm" aria-label="Shop Spices category now">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-center text-muted">No recommendations available at the moment.</p>
+    }
+
+    <!-- All Products -->
+    <center><h2 tabindex="0" class="mt-5 mb-4">All Products</h2></center>
+    @if (Model.Products != null && Model.Products.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4" role="list" aria-label="All products">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col" role="listitem">
+                    <article tabindex="0" aria-label="@($"{product.Name}, {product.Description}, price {product.Price:C}")" class="card h-100 shadow-sm">
+                        <img src="@product.ImageUrl" class="card-img-top img-fluid" alt="@product.Name" />
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="card-title h5">@product.Name</h3>
+                            <p class="card-text text-muted">@product.Description</p>
+                            <p class="card-text fw-bold mt-auto text-center">Price: @product.Price.ToString("C")</p>
+
+                            <div class="d-flex justify-content-center mt-2">
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <button type="submit" class="btn btn-outline-success" aria-label="Add @product.Name to cart" onclick="addToCart('@product.Name')">
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="d-flex justify-content-center mt-2">
+                                <a href="@Url.Action("Details", "Shop", new { id = product.Id })"
+                                   class="btn btn-secondary w-60"
+                                   aria-label="View details of @product.Name">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-center text-muted">No products available.</p>
+    }
+
+    <!-- Pagination -->
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination mt-4 text-end">
+            <nav aria-label="Product pagination">
+                <ul class="pagination justify-content-end">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" aria-label="Go to previous page">Previous</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@i" aria-label="Go to page @i">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" aria-label="Go to next page ">Next</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Styles -->
+<style>
+    .sr-only {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        border: 0 !important;
+    }
+
+    .card-img-top {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img-top {
+        transform: scale(1.05);
+        cursor: pointer;
+    }
+
+    @@media (min-width: 1200px) {
+        .row-cols-lg-5 > * {
+            flex: 0 0 auto;
+            width: 20%;
+        }
+
+        .pagination {
+            text-align: right;
+        }
+
+        .pagination ul.pagination {
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+@section Scripts {
+<script>
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+        }
+    }
+
+    function addToCart(productName) {
+        const liveRegion = document.getElementById('cart-live-region');
+        liveRegion.textContent = productName + " added to your cart.";
+        speak(productName + " has been added to your cart.");
+    }
+
+    // Voice Commands
+    let recognition;
+    let listening = false;
+    let redirectTimer = null;
+
+    function startVoiceCommands() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Your browser does not support voice recognition.");
+            return;
+        }
+
+        if (recognition) {
+            recognition.stop();  // Stop any existing recognition before starting new
+        }
+
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            listening = true;
+            console.log("Voice recognition started");
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+                redirectTimer = null;
+            }
+            speak("Listening. Please say a command like: Add ginger powder to cart.");
+        };
+
+        recognition.onend = () => {
+            listening = false;
+            console.log("Voice recognition ended");
+            // Start the 20-second timer to redirect after user stops talking
+            if (redirectTimer) clearTimeout(redirectTimer);
+            redirectTimer = setTimeout(() => {
+                speak("Taking you to your cart now.");
+                window.location.href = '/Cart';
+            }, 20000);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            speak("Sorry, something went wrong. Please try again.");
+            // No auto-restart here
+        };
+
+        recognition.onresult = (event) => {
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+                redirectTimer = null;
+            }
+
+            const finalTranscript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('')
+                .trim()
+                .toLowerCase();
+
+            console.log("Voice command received:", finalTranscript);
+
+            if (finalTranscript.length > 0) {
+                processVoiceCommand(finalTranscript);
+            } else {
+                speak("I didn't catch that. Please try again.");
+            }
+
+            // After processing, restart recognition to keep listening continuously
+            recognition.stop(); // stop current session
+            setTimeout(() => {
+                startVoiceCommands(); // restart after short delay
+            }, 500);
+        };
+
+        recognition.start();
+    }
+
+    function processVoiceCommand(command) {
+        command = command.toLowerCase().trim();
+
+        if (!command) return;
+
+        if (command.startsWith("add ")) {
+            let productNameSpoken = command.replace(/^add\s+/, '').replace(/\s+to cart$/, '').trim();
+
+            if (!productNameSpoken) {
+                speak("Please say the product name after add.");
+                return;
+            }
+
+            const productCards = document.querySelectorAll('.card');
+
+            let matched = false;
+
+            productCards.forEach(card => {
+                const productNameCardElem = card.querySelector('.card-title');
+                if (!productNameCardElem) return;
+
+                const productNameCard = productNameCardElem.textContent.toLowerCase().trim();
+
+                if (productNameSpoken.includes(productNameCard) || productNameCard.includes(productNameSpoken)) {
+                    const addToCartButton = card.querySelector('form button[type="submit"]');
+                    if (addToCartButton) {
+                        addToCartButton.click();
+                        matched = true;
+                    }
+                }
+            });
+
+            if (!matched) {
+                speak("Sorry, I couldn't find that product.");
+            }
+        } else if (command.includes("go home")) {
+            speak("Taking you to homepage.");
+            window.location.href = '/';
+        } else {
+            speak("Command not recognized.");
+        }
+    }
+
+    // Pagination speech support
+    const liveRegion = document.getElementById('pagination-live-region');
+    document.querySelectorAll('.pagination a.page-link').forEach(link => {
+        link.addEventListener('focus', () => {
+            const label = link.getAttribute('aria-label') || link.textContent.trim();
+            speak(label);
+        });
+
+        link.addEventListener('click', () => {
+            const label = link.getAttribute('aria-label') || link.textContent.trim();
+            liveRegion.textContent = label;
+            speak(label);
+        });
+    });
+
+    // Start voice recognition automatically on page load (hands-free)
+    window.addEventListener('load', () => {
+        startVoiceCommands();
+    });
+</script>
+}

@@ -1,0 +1,58 @@
+@model RMS.Web.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h2 class="my-4">Checkout</h2>
+
+<form asp-action="Checkout" method="post" class="needs-validation" novalidate>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="DeliveryAddress.Street" class="form-label">Street</label>
+            <input asp-for="DeliveryAddress.Street" class="form-control" />
+            <span asp-validation-for="DeliveryAddress.Street" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="DeliveryAddress.City" class="form-label">City</label>
+            <input asp-for="DeliveryAddress.City" class="form-control" />
+            <span asp-validation-for="DeliveryAddress.City" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="DeliveryAddress.PostalCode" class="form-label">Zip Code</label>
+            <input asp-for="DeliveryAddress.PostalCode" class="form-control" />
+            <span asp-validation-for="DeliveryAddress.PostalCode" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="PaymentMethod.CardNumber" class="form-label">Card Number</label>
+            <input asp-for="PaymentMethod.CardNumber" class="form-control" />
+            <span asp-validation-for="PaymentMethod.CardNumber" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PaymentMethod.ExpirationDate" class="form-label">Expiry Date</label>
+            <input asp-for="PaymentMethod.ExpirationDate" class="form-control" />
+            <span asp-validation-for="PaymentMethod.ExpirationDate" class="text-danger"></span>
+        </div>
+    </div>
+
+    @* <button type="submit" class="btn btn-primary">Place Order</button> *@
+
+    @if (User.Identity.IsAuthenticated)
+{
+    <button type="submit" class="btn btn-primary">Place Order</button>
+}
+else
+{
+    <a class="btn btn-warning" href="/Account/Login?returnUrl=@Url.Action("Index", "Checkout")">
+        Login to Place Order
+    </a>
+}
+
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

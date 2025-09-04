@@ -1,0 +1,28 @@
+@* @model RMS.Data.Entities.Review
+
+@{
+    ViewData["Title"] = "Create Review";
+}
+
+<h1>Create Review</h1>
+
+<form asp-action="Create" method="post">
+   
+    <div class="form-group">
+        <label for="Rating">Rating (1-5)</label>
+        <input type="number" class="form-control" id="Rating" name="Rating" min="1" max="5" value="@Model.Rating" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Comment">Comment</label>
+        <textarea class="form-control" id="Comment" name="Comment" required>@Model.Comment</textarea>
+    </div>
+
+    <input type="hidden" name="RecipeId" value="@Model.RecipeId" />
+
+    <input type="hidden" name="UserId" value="1" />
+
+    <button type="submit" class="btn btn-primary">Submit Review</button>
+</form>
+
+<a asp-action="Details" asp-controller="Recipe" asp-route-id="@Model.RecipeId" class="btn btn-secondary mt-3">Back to Recipe</a> *@

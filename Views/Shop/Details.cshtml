@@ -1,0 +1,242 @@
+@* @model RMS.Data.Entities.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<!-- Modern Product Details Page -->
+<div class="container mt-4" style="max-width: 800px">
+    <!-- Product Card -->
+    <div class="card mb-4">
+        <img src="@Model.ImageUrl" class="card-img-top" alt="@Model.Name" />
+        <div class="card-body">
+            <h2 class="card-title">@Model.Name</h2>
+            <p class="card-text">@Model.Description</p>
+            <p class="fw-bold fs-5 text-primary">Price: @Model.Price.ToString("C")</p>
+
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-3">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn btn-success" onclick="speak('Added to cart')">Add to Cart</button>
+            </form>
+
+            <a asp-action="Index" class="btn btn-secondary mt-3">Back to Shop</a>
+        </div>
+    </div>
+
+    <!-- Review Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="mb-3">Customer Reviews</h4>
+
+            @if (Model.Reviews?.Any() ?? false)
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <div class="review-box mb-3">
+                        <strong>@review.User?.UserName</strong> -
+                        <span>@review.Rating star@(review.Rating > 1 ? "s" : "")</span>
+                        <p class="mb-1">@review.Comment</p>
+                        <small class="text-muted">@review.CreatedAt.ToShortDateString()</small>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+            }
+        </div>
+    </div>
+
+    <!-- Add Review Form -->
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="card mb-5">
+            <div class="card-body">
+                <h4 class="mb-3">Add a Review</h4>
+
+                <form asp-controller="Review" asp-action="Create" method="post">
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label for="Rating" class="form-label">Rating</label>
+                        <select class="form-select rounded-2 shadow-sm" name="Rating" required>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <option value="@i">@i star@(i > 1 ? "s" : "")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Comment" class="form-label">Comment</label>
+                        <textarea class="form-control rounded-2 shadow-sm" name="Comment" rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" onclick="speak('Review submitted')">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">You must <a asp-controller="Account" asp-action="Login">log in</a> to leave a review.</p>
+    }
+</div>
+
+
+
+<!-- Text-to-Speech Script -->
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script>
+        function speak(text) {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            window.speechSynthesis.speak(utter);
+        }
+
+        const reviewCount = @Model.Reviews?.Count ?? 0;
+        if (reviewCount > 0) {
+            speak(`This product has ${reviewCount} review${reviewCount > 1 ? "s" : ""}.`);
+        } else {
+            speak("This product has no reviews yet.");
+        }
+    </script>
+} * *@
+
+
+
+
+@model RMS.Data.Entities.Product
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="container mt-4" style="max-width: 800px">
+    <div class="card mb-4">
+        <img src="@Model.ImageUrl" class="card-img-top" alt="@Model.Name" />
+        <div class="card-body">
+            <h2 class="card-title">@Model.Name</h2>
+            <p class="card-text">@Model.Description</p>
+            <p class="fw-bold fs-5 text-primary">Price: @Model.Price.ToString("C")</p>
+
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-3">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn btn-success" onclick="speak('Added to cart')">Add to Cart</button>
+            </form>
+
+            <a asp-action="Index" class="btn btn-secondary mt-3" onclick="speak('Back to shop')">Back to Shop</a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="mb-3">Customer Reviews</h4>
+
+            @if (Model.Reviews?.Any() ?? false)
+            {
+                foreach (var review in Model.Reviews)
+                {
+                    <div class="review-box mb-3">
+                        <strong>@review.User?.UserName</strong> -
+                        <span>@review.Rating star@(review.Rating > 1 ? "s" : "")</span>
+                        <p class="mb-1">@review.Comment</p>
+                        <small class="text-muted">@review.CreatedAt.ToShortDateString()</small>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No reviews yet. Be the first to review this product!</p>
+            }
+        </div>
+    </div>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="card mb-5">
+            <div class="card-body">
+                <h4 class="mb-3">Add a Review</h4>
+
+                <form asp-controller="Review" asp-action="Create" method="post">
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label for="Rating" class="form-label">Rating</label>
+                        <select class="form-select rounded-2 shadow-sm" name="Rating" required>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <option value="@i">@i star@(i > 1 ? "s" : "")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Comment" class="form-label">Comment</label>
+                        <textarea class="form-control rounded-2 shadow-sm" name="Comment" rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" onclick="speak('Review submitted')">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">You must <a asp-controller="Account" asp-action="Login">log in</a> to leave a review.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function speak(text) {
+            if (!text) return;
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            window.speechSynthesis.speak(utter);
+        }
+
+        const reviewCount = @Model.Reviews?.Count ?? 0;
+        if (reviewCount > 0) {
+            speak(`This product has ${reviewCount} review${reviewCount > 1 ? "s" : ""}.`);
+        } else {
+            speak("This product has no reviews yet.");
+        }
+    </script>
+
+    <!-- Load annyang for voice commands only on this page -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+    <script>
+        if (annyang) {
+            // Define voice commands
+            const commands = {
+                'go to homepage': () => {
+                    window.location.href = '@Url.Action("Index", "Shop")';
+                },
+                'go to home': () => {
+                    window.location.href = '@Url.Action("Index", "Shop")';
+                },
+                'back to shopping': () => {
+                    window.location.href = '@Url.Action("Index", "Shop")';
+                },
+                '*phrase': (phrase) => {
+                    // If user says anything with these keywords, redirect to homepage/shop
+                    if (phrase.includes("shop") || phrase.includes("home") || phrase.includes("homepage")) {
+                        window.location.href = '@Url.Action("Index", "Shop")';
+                    }
+                }
+            };
+
+            annyang.addCommands(commands);
+
+            // Optional: Restart annyang if it was running (avoids multiple listeners)
+            annyang.abort();
+            annyang.start();
+        } else {
+            console.warn("Voice recognition not supported in this browser.");
+        }
+    </script>
+}

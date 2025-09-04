@@ -1,0 +1,17 @@
+@model RMS.Web.Models.ConfirmViewModel
+
+<h2>Order Confirmation</h2>
+
+<h3>Delivery Address</h3>
+<p>@Model.DeliveryAddress.FullName</p>
+<p>@Model.DeliveryAddress.AddressLine1</p>
+<p>@Model.DeliveryAddress.AddressLine2</p>
+<p>@Model.DeliveryAddress.City, @Model.DeliveryAddress.PostalCode</p>
+<p>@Model.DeliveryAddress.Country</p>
+<p>@Model.DeliveryAddress.PhoneNumber</p>
+
+<h3>Payment Method</h3>
+<p>Cardholder: @Model.PaymentMethod.CardHolderName</p>
+<p>Card Number: **** **** **** @Model.PaymentMethod.CardNumber?.Substring(Math.Max(0, Model.PaymentMethod.CardNumber.Length - 4))</p>
+@* <p>Expires: @Model.PaymentMethod.ExpirationDate</p> *@
+<p>Expires: @Model.PaymentMethod.ExpirationMonth/@Model.PaymentMethod.ExpirationYear</p>

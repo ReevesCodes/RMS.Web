@@ -1,0 +1,195 @@
+
+
+
+
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chatbot Assistant";
+}
+
+<h2 class="mb-3 text-center">@ViewData["Title"]</h2>
+
+<div class="chat-container mx-auto shadow rounded" style="max-width: 600px; height: 450px; display:flex; flex-direction: column; background: #fff; border: 1px solid #ddd;">
+
+    <div id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" style="flex: 1; padding: 1rem; overflow-y: auto; font-size: 0.95rem; background: #f5f7fa; border-bottom: 1px solid #ddd;">
+        <div class="bot-message p-2 mb-2 rounded" style="background:#e1e7f0; max-width: 75%;">👋 Hello! How can I assist you today?</div>
+    </div>
+
+    <div class="input-area d-flex p-3 align-items-center" style="gap: 0.5rem;">
+        <textarea id="userInput" rows="2" placeholder="Speak or type your message..." aria-label="Chat input" class="form-control" style="resize:none; flex-grow: 1;"></textarea>
+
+        <button id="btnSpeak" class="btn btn-outline-success" aria-label="Start voice input" title="Speak"><i class="bi bi-mic-fill"></i> 🎤</button>
+        <button id="btnSend" class="btn btn-outline-success" aria-label="Send message">Send</button>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+<script>
+    const chatWindow = document.getElementById('chatWindow');
+    const userInput = document.getElementById('userInput');
+    const btnSpeak = document.getElementById('btnSpeak');
+    const btnSend = document.getElementById('btnSend');
+
+    function appendMessage(sender, text) {
+        const div = document.createElement('div');
+        div.classList.add(sender === 'You' ? 'user-message' : 'bot-message');
+        div.style.maxWidth = '75%';
+        div.style.padding = '8px 12px';
+        div.style.borderRadius = '12px';
+        div.style.marginBottom = '8px';
+        div.style.fontSize = '0.95rem';
+        div.style.wordWrap = 'break-word';
+
+        if(sender === 'You'){
+            div.style.backgroundColor = '#0d6efd';
+            div.style.color = 'white';
+            div.style.alignSelf = 'flex-end';
+            div.style.textAlign = 'right';
+        } else if(sender === 'System' || sender === 'Error'){
+            div.style.backgroundColor = '#f8d7da';
+            div.style.color = '#842029';
+            div.style.alignSelf = 'flex-start';
+        } else {
+            div.style.backgroundColor = '#e1e7f0';
+            div.style.color = '#0a1e42';
+            div.style.alignSelf = 'flex-start';
+        }
+
+        div.textContent = `${sender}: ${text}`;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function speak(text) {
+        if (!text) return;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'en-US';
+        utter.volume = 1;
+        utter.rate = 1;
+        utter.pitch = 1;
+        speechSynthesis.speak(utter);
+    }
+
+    // Speech recognition setup
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            appendMessage("System", "🎤 Listening...");
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            userInput.value = transcript;
+            btnSend.click(); // Auto-send after speaking
+        };
+
+        recognition.onerror = function(event) {
+            appendMessage("Error", "🎤 Speech recognition error: " + event.error);
+        };
+
+        recognition.onend = function() {
+            appendMessage("System", "✅ Finished listening.");
+        };
+    } else {
+        btnSpeak.disabled = true;
+        appendMessage("System", "🎤 Speech recognition not supported in this browser.");
+    }
+
+    // Button click handlers
+    btnSpeak.onclick = () => {
+        if (recognition) {
+            recognition.start();
+        }
+    };
+
+    btnSend.onclick = () => {
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        appendMessage('You', message);
+        speak("Processing your message...");
+        userInput.value = '';
+
+        fetch('@Url.Action("GetReply", "Chatbot")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                appendMessage('Error', data.message || 'Unknown error from server');
+                speak(data.message || 'There was an error.');
+                return;
+            }
+
+            const replyText = data.reply || "Sorry, I didn't get a response.";
+            appendMessage('Chatbot', replyText);
+            speak(replyText);
+
+            if (data.redirect) {
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 2500);
+            }
+        })
+        .catch(err => {
+            appendMessage('Error', '❌ Could not get response from server.');
+            console.error(err);
+        });
+    };
+
+    // Accessibility: Enter to send typed message
+    userInput.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            btnSend.click();
+        }
+    });
+
+    // Accessibility: Ctrl + Space to start speaking
+    document.addEventListener('keydown', function(e){
+        if (e.ctrlKey && e.code === 'Space') {
+            e.preventDefault();
+            if (recognition) recognition.start();
+        }
+    });
+</script>
+
+<style>
+    .chat-container {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #chatWindow::-webkit-scrollbar {
+        width: 8px;
+    }
+    #chatWindow::-webkit-scrollbar-thumb {
+        background-color: rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+
+    @@media (max-width: 640px) {
+        .chat-container {
+            max-width: 95vw !important;
+            height: 400px !important;
+        }
+    }
+</style>
+}
+

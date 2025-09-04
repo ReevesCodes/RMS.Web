@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<h2>User Profile</h2>
+
+<p><strong>User ID:</strong> @ViewBag.UserId</p>
+<p><strong>Email:</strong> @ViewBag.UserEmail</p>
+
+<a asp-controller="User" asp-action="Logout" class="btn btn-danger">Logout</a>
+y

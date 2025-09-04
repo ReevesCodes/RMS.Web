@@ -1,0 +1,30 @@
+@model RMS.Web.Models.ThankYouViewModel
+
+
+
+<h2>Thank you for your order!</h2>
+<p>Order #@Model.Id placed on @Model.OrderDate.ToString("f")</p>
+
+<h3>Order Details:</h3>
+<ul>
+@foreach(var item in Model.Items)
+{
+    <li>@item.Name - Quantity: @item.Quantity - Price: @item.PriceAtPurchase.ToString("C")</li>
+}
+</ul>
+
+<p><strong>Total: </strong> @Model.TotalAmount.ToString("C")</p>
+
+<h3>Delivery Address:</h3>
+<p>
+    @Model.DeliveryAddress.FullName <br />
+    @Model.DeliveryAddress.AddressLine1 <br />
+    @Model.DeliveryAddress.City, @Model.DeliveryAddress.Country <br />
+    Phone: @Model.DeliveryAddress.PhoneNumber
+</p>
+
+<script>
+    // Voice feedback for blind users
+    const msg = new SpeechSynthesisUtterance("Thank you for your order. Your order has been placed successfully.");
+    window.speechSynthesis.speak(msg);
+</script>

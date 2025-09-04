@@ -1,0 +1,191 @@
+﻿
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]  Mandy's</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+       <link rel="icon" type="image/x-icon" href="~/favicon.ico">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" />  
+
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
+
+    
+ 
+
+
+    <!-- Custom styles -->
+    <style>
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom shadow-sm fixed-top" role="navigation" aria-label="Main navigation">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="@Url.Action("Index", "Home")">
+                    <img src="~/images/mandysvoiceshop.png" alt="" width="30" height="30" class="me-2">
+                    Mandy's
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                       
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Shop" asp-action="Index" onclick="speak('You are about to shop.')">
+                                <i class="bi bi-shop me-1" aria-hidden="true"></i> Shop
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Cart" asp-action="Index" onclick="speak('You have opened your shopping cart.')">
+                                <i class="bi bi-cart me-1" aria-hidden="true"></i> Cart
+                            </a>
+                        </li> 
+                       
+                         <li class="nav-item">
+                            <a class="nav-link" asp-controller="Chatbot" asp-action="Index" onclick="speak('Opening chatbot assistant.')">
+                                <i class="bi bi-robot me-1" aria-hidden="true"></i> Chatbot
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="supportDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Help
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="supportDropdown">
+                                <li><a class="dropdown-item" asp-controller="Support" asp-action="Index" onclick="speak('Contact customer support.')">Contact Support</a></li>
+                                <li><a class="dropdown-item" asp-controller="Support" asp-action="History" onclick="speak('Viewing support history.')">My Support History</a></li>
+                            </ul>
+                        </li>
+                    </ul> 
+
+                     <!-- Search Form -->
+                    <form class="d-flex me-3" asp-controller="Shop" asp-action="Search" method="get" role="search" aria-label="Product search form">
+                        <label for="searchInput" class="visually-hidden">Search products</label>
+                        <input class="form-control me-2" type="search" name="query" id="searchInput"
+                               placeholder="Search products" aria-label="Search products" />
+                        <button class="btn btn-outline-success" type="submit" aria-label="Submit search">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+
+                    <!-- Login Partial -->
+                    <div class="d-flex align-items-center">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header> 
+
+
+    <main role="main" class="mt-5 pt-4">
+    <partial name="_AlertIcons" />
+    @RenderBody()
+</main>
+ 
+
+    <!-- Bootstrap JS -->
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script>
+        function speak(text) {
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            window.speechSynthesis.speak(utter);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const dropdown = document.getElementById("supportDropdown");
+            if (dropdown) {
+                dropdown.addEventListener('show.bs.dropdown', function () {
+                    speak("Support menu opened. Use arrow keys or tap to choose Contact Support or My Support History.");
+                });
+            }
+            // Add voice feedback for button clicks
+            document.querySelectorAll("button").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    const label = btn.getAttribute("aria-label") || btn.innerText || "button";
+                    speak(label + " clicked.");
+                });
+            });
+        });
+
+        function openChatbot() {
+            const msg = new SpeechSynthesisUtterance("Opening chatbot assistant.");
+            msg.lang = 'en-US';
+            speechSynthesis.speak(msg);
+            const chatbotModal = new bootstrap.Modal(document.getElementById('chatbotModal'));
+            chatbotModal.show();
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+
+    <!-- Floating Chatbot Button -->
+    <footer class="bg-light text-center py-3 mt-5 border-top">
+        <small>&copy; 2025 Mandy's - All rights reserved.</small>
+    </footer>
+
+    <!-- Floating Chatbot Button -->
+    <a href="@Url.Action("Index", "Chatbot")"
+       class="btn btn-success"
+       style="position: fixed; bottom: 20px; right: 5px; border-radius: 20%; width: 60px; height: 40px; font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 1000;"
+       title="Chatbot Assistant"
+       aria-label="Open chatbot assistant"
+       onclick="speak('Opening the chatbot assistant')">
+        💬
+    </a>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('Service worker registered'))
+          .catch(err => console.log('SW failed:', err));
+      }
+    </script>
+
+
+    <div id="react-root"></div>
+
+    
+   <script type="module" src="~/react/assets/index-xxxxx.js"></script> <!-- match your built file --> 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
+
+       
+
+
+</body>
+</html>
+ 
+
+
+
+
+
+
+

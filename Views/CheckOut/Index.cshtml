@@ -1,0 +1,286 @@
+
+
+@model RMS.Web.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<style>
+    /* Boxier, modern card styling */
+    .card {
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        border: 2px solid #e0e0e0;
+        padding: 2rem;
+        background: #fff;
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+
+    .card-header {
+        font-weight: 700;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #333;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid green;
+        padding-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: #444;
+    }
+
+    .form-control {
+        border-radius: 0.5rem;
+        border: 2px solid #ced4da;
+        padding: 0.65rem 1rem;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: green;
+        box-shadow: 0 0 0 0.3rem rgba(13, 110, 253, 0.3);
+        outline: none;
+    }
+
+    .input-group-text, 
+    .btn-outline-secondary {
+        border-radius: 0.5rem;
+        border: 2px solid #ced4da;
+        background: #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-outline-secondary {
+        font-size: 1.3rem;
+        padding: 0.4rem 0.75rem;
+        cursor: pointer;
+    }
+
+    .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+        background-color: #e2e6ea;
+        border-color: green;
+        outline: none;
+    }
+
+    .text-danger {
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+        display: block;
+        font-weight: 600;
+    }
+
+    .alert-danger {
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 1rem auto 2rem auto;
+        padding: 1rem 1.5rem;
+        border: 2px solid #dc3545;
+        background: #f8d7da;
+        color: #842029;
+        text-align: center;
+    }
+
+    /* Center PayPal container */
+    #paypal-button-container {
+        max-width: 320px;
+        margin: 3rem auto 2rem auto;
+        padding: 1.5rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        border-radius: 0.75rem;
+        background: #fff;
+    }
+
+    /* Keyboard focus */
+    button:focus, input:focus {
+        outline: 3px solid green;
+        outline-offset: 2px;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 640px) {
+        .card {
+            margin: 1rem 1rem 2rem 1rem;
+            padding: 1.5rem;
+        }
+        #paypal-button-container {
+            max-width: 100%;
+            margin: 2rem auto 2rem auto;
+        }
+    }
+</style>
+
+<h2 class="mb-4" id="checkoutHeading" tabindex="-1" style="text-align:center;">Checkout</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert" aria-live="assertive" tabindex="-1">
+        Please correct the errors below.
+    </div>
+}
+
+<form id="checkoutForm" asp-action="Index" method="post" class="needs-validation" novalidate aria-labelledby="checkoutHeading">
+    <div class="card" role="region" aria-label="Delivery Address Form">
+        <div class="card-header">Delivery Address</div>
+        
+        <div class="mb-4">
+            <label asp-for="DeliveryAddress.FullName" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="DeliveryAddress.FullName" class="form-control" id="fullNameInput" aria-required="true" autocomplete="name" />
+                <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for Full Name" onclick="startVoiceInput('fullNameInput')">🎤</button>
+            </div>
+            <span asp-validation-for="DeliveryAddress.FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="DeliveryAddress.AddressLine1" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="DeliveryAddress.AddressLine1" class="form-control" id="addressInput" aria-required="true" autocomplete="street-address" />
+                <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for Address Line 1" onclick="startVoiceInput('addressInput')">🎤</button>
+            </div>
+            <span asp-validation-for="DeliveryAddress.AddressLine1" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <label asp-for="DeliveryAddress.City" class="form-label"></label>
+                <div class="input-group">
+                    <input asp-for="DeliveryAddress.City" class="form-control" id="cityInput" aria-required="true" autocomplete="address-level2" />
+                    <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for City" onclick="startVoiceInput('cityInput')">🎤</button>
+                </div>
+                <span asp-validation-for="DeliveryAddress.City" class="text-danger"></span>
+            </div>
+            <div class="col-md-6 mb-4">
+                <label asp-for="DeliveryAddress.PostalCode" class="form-label"></label>
+                <div class="input-group">
+                    <input asp-for="DeliveryAddress.PostalCode" class="form-control" id="postalInput" aria-required="true" autocomplete="postal-code" />
+                    <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for Postal Code" onclick="startVoiceInput('postalInput')">🎤</button>
+                </div>
+                <span asp-validation-for="DeliveryAddress.PostalCode" class="text-danger"></span>
+            </div>
+            
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="DeliveryAddress.Country" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="DeliveryAddress.Country" class="form-control" id="countryInput" aria-required="true" autocomplete="country-name" />
+                <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for Country" onclick="startVoiceInput('countryInput')">🎤</button>
+            </div>
+            <span asp-validation-for="DeliveryAddress.Country" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="DeliveryAddress.PhoneNumber" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="DeliveryAddress.PhoneNumber" class="form-control" id="phoneInput" aria-required="true" autocomplete="tel" />
+                <button type="button" class="btn btn-outline-secondary" aria-label="Voice input for Phone Number" onclick="startVoiceInput('phoneInput')">🎤</button>
+            </div>
+            <span asp-validation-for="DeliveryAddress.PhoneNumber" class="text-danger"></span>
+        </div>
+    </div>
+</form>
+
+
+<div id="paypal-button-container" aria-label="PayPal Payment Button"></div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://www.paypal.com/sdk/js?client-id=AbURRdaZsOnUUPLjklhk03B8_6Bb-_HmF3QGvv5tY45qwplkit4ESMCtiWgscbfyElVnkErOmCvf9I4V&currency=USD"></script>
+
+    <script>
+        function speak(message) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(message);
+            synth.speak(utterance);
+        }
+
+        function startVoiceInput(fieldId) {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voice recognition not supported.");
+                return;
+            }
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.start();
+
+            recognition.onresult = function (event) {
+                let transcript = event.results[0][0].transcript.trim();
+                transcript = transcript.replace(/\b\w/g, c => c.toUpperCase());
+
+                document.getElementById(fieldId).value = transcript;
+                speak(`Set ${fieldId.replace('Input', '')} to ${transcript}`);
+
+                if (transcript.toLowerCase().includes("pay with paypal")) {
+                    document.getElementById("paypal-button-container").scrollIntoView({ behavior: "smooth" });
+                    speak("Navigating to PayPal payment section.");
+                    setTimeout(() => {
+                        const iframe = document.querySelector("iframe[title='PayPal']");
+                        if (iframe) iframe.focus();
+                    }, 1000);
+                }
+            };
+
+            recognition.onerror = function (event) {
+                alert('Speech recognition error: ' + event.error);
+            };
+        }
+
+        window.onload = function () {
+            const heading = document.getElementById('checkoutHeading');
+            if (heading) heading.focus();
+        };
+
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'paypal',
+            },
+            createOrder: function (data, actions) {
+                speak("PayPal payment started.");
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '@ViewBag.CartTotal'
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+                    speak(`Payment completed by ${details.payer.name.given_name}. Redirecting to Thank You page.`);
+                    fetch('/Checkout/PaypalCapture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId: data.orderID })
+                    }).then(response => response.json())
+                      .then(data => {
+                          window.location.href = '/Checkout/ThankYou?orderId=' + data.orderId;
+                      }).catch(error => {
+                          alert("Error saving order: " + error.message);
+                          speak("Error saving order.");
+                      });
+                });
+            },
+            onError: function (err) {
+                alert('PayPal error: ' + err);
+                speak("PayPal payment failed.");
+            }
+        }).render('#paypal-button-container');
+    </script>
+}

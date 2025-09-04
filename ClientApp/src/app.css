@@ -1,0 +1,75 @@
+/* App.css */
+.carousel-wrapper {
+  margin-top: -15px; /* Adjust to match your navbar */
+  margin-bottom: 0;
+}
+
+.carousel-item {
+  display: flex;
+  align-items: center; /* vertical alignment for caption */
+  justify-content: center;
+  min-height: 500px; /* or more if needed */
+}
+
+
+.carousel-item img {
+  height: 550px;
+  width: 100%;
+  object-fit: cover;
+  object-position: center; /* Keep image centered */
+  border-radius: 0px;  
+}
+
+.carousel-caption {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+  color: #fff;
+}
+/* app.css */
+
+/* Push carousel below fixed navbar */
+.carousel-wrapper {
+  padding-top: -150px; /* Adjust based on your actual navbar height */
+}
+
+
+
+/* Style the captions to be readable */
+.carousel-caption {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+/* Optional: adjust for mobile responsiveness */
+@media (max-width: 768px) {
+  .carousel-item img {
+    height: 300px;
+  }
+  .carousel-caption h1 {
+    font-size: 1.5rem;
+  }
+  .carousel-caption p {
+    font-size: 1rem;
+  }
+}
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px; /* Thin scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);  /* Scrollbar thumb color */
+  border-radius: 10px;
+  border: 1px solid transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
