@@ -705,3 +705,4 @@ c:\Users\wilson\Downloads\EcommerceRMS\RMS.Web\obj\Debug\net9.0\rjsmcshtml.dswa.
 c:\Users\wilson\Downloads\EcommerceRMS\RMS.Web\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\wilson\Downloads\EcommerceRMS\RMS.Web\obj\Debug\net9.0\compressed\lq7bgrk9tp-wp6gi824ox.gz
 C:\Users\wilson\Downloads\EcommerceRMS\RMS.Web\obj\Debug\net9.0\compressed\bceqimknlq-eivlpgkutk.gz
+C:\Users\wilson\Downloads\EcommerceRMS\RMS.Web\obj\Debug\net9.0\RMS.Web.sourcelink.json
